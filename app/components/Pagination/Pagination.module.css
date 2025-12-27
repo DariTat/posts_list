@@ -1,0 +1,43 @@
+.item {
+  align-items: center;
+  color: var(--black);
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.disabled-page {
+  color: #808e9b;
+}
+
+.active {
+  border: solid 1px #808e9b;
+  border-radius: 40px;
+  color: #808e9b;
+}
+
+.next {
+  font-size: 14px;
+  height: 60px;
+  width: 150px;
+}
+.previous {
+  font-size: 14px;
+  height: 60px;
+  width: 150px;
+}
+
+.pagination {
+  margin-top: 40px;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  list-style-type: none;
+}
+
+
+

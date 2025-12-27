@@ -1,0 +1,14 @@
+.post {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 10px;
+}
+.title {
+    color: #000;
+    font-size: 24px;
+    text-decoration: underline;
+}
+.text {
+    color: #000;
+    font-size: 20px;
+}
