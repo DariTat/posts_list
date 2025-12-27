@@ -1,6 +1,6 @@
 'use client'
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Header from "./components/Header/Header";
 import Post from "./components/Post/Post";
 import Pagination from "./components/Pagination/Pagination";
@@ -16,14 +16,9 @@ interface Post {
 
 export default function Home() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const initialSearch = searchParams.get('title_like') || '';
-  const initialPage = parseInt(searchParams.get('page') || '1', 10) - 1;
-
   const [posts, setPosts] = useState<Post[]>([]);
-  const [searchValue, setSearchValue] = useState<string>(initialSearch);
-   const [currentPage, setCurrentPage] = useState<number>(initialPage);
+  const [searchValue, setSearchValue] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(0);
 
 
   const filteredPosts = useMemo(() => {
@@ -31,11 +26,25 @@ export default function Home() {
       el.title.trim().toLowerCase().includes(searchValue.trim().toLowerCase())
     );
   }, [posts, searchValue]);
+
   useEffect(() => {
-    const params = new URLSearchParams();
+    if (typeof window === 'undefined') return;
     
-    if (searchValue) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const search = searchParams.get('title_like') || '';
+    const page = parseInt(searchParams.get('page') || '1', 10) - 1;
+    
+    setSearchValue(search);
+    setCurrentPage(Math.max(page, 0));
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (searchValue.trim()) {
       params.set('title_like', searchValue);
+    } else {
+      params.delete('title_like');
     }
     
     if (currentPage > 0) {
@@ -45,11 +54,16 @@ export default function Home() {
     const newUrl = params.toString() ? `/?${params.toString()}` : '/';
     router.replace(newUrl, { scroll: false });
   }, [searchValue, currentPage, router]);
+
   useEffect(() => {
     const fetchPosts = async () => {
-      const response = await fetch("https://jsonplaceholder.typicode.com/posts");
-      const json = await response.json();
-      setPosts(json);
+      try {
+        const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+        const json = await response.json();
+        setPosts(json);
+      } catch(error){
+        console.error('Ошибка загрузки постов:', error)
+      }
     }
     fetchPosts();
     
@@ -61,8 +75,7 @@ export default function Home() {
   const currentItems = useMemo(
     () => filteredPosts.slice(currentPage * itemsPerPage, endOffset),
     [filteredPosts, currentPage, endOffset]
-  );
-  
+  );  
   const pageCount = Math.ceil(filteredPosts.length / itemsPerPage);
 
   const handlePageClick = useCallback(
@@ -74,9 +87,9 @@ export default function Home() {
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
-    // Сбрасываем на первую страницу при поиске
     setCurrentPage(0);
   }, []);
+   
 
   return (
     <div>
